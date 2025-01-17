@@ -10,6 +10,18 @@ What is required to install and run this application
 
 Installation instructions here
 
+First setup the virtual environment
+
+```bash
+python3 -m venv venv
+```
+
+Then install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
 
 ## Getting started
 
