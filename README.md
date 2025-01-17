@@ -22,6 +22,11 @@ Then install dependencies
 pip install -r requirements.txt
 ```
 
+If you add new dependencies, create an updated `requirements.txt` with the following command:
+```
+pip freeze > requirements.txt
+```
+
 
 ## Getting started
 
