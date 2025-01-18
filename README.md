@@ -8,7 +8,7 @@ What is required to install and run this application
 
 ## Installation
 
-Installation instructions here
+### Manual installation
 
 First setup the virtual environment
 
@@ -27,7 +27,44 @@ If you add new dependencies, create an updated `requirements.txt` with the follo
 pip freeze > requirements.txt
 ```
 
+### Convenience script
 
-## Getting started
+Run the installation script with
 
-Quick quide to new users and a link to extensive user manual
+```bash
+./install.sh
+```
+
+## Running the application
+
+### Manually
+
+To run the app use 
+
+```bash
+flask --app src/app.py run
+```
+
+To debug:
+
+```bash
+flask --app src/app.py --debug run
+```
+
+
+### Convenience script
+
+To run the app use 
+
+```bash
+./start-app.sh
+```
+
+To debug:
+
+```bash
+./start-app.sh debug
+```
+
+
+TODO: Quick guide for users to get started
