@@ -18,7 +18,9 @@ class TrackingDataRepository:
         """method for fetching all tracking data
 
         Returns:
-            dict: returns a dictionary with  as keys and passwords and roles as items.
+            tuple[list, list]
+            list: columns for fetched data based on descriptions
+            list: row data
         """
         cursor = self._connection.cursor()
 
@@ -31,8 +33,6 @@ class TrackingDataRepository:
 
     def add_entry(self, tracking_data: TrackingDataEntry) -> None:
         """A method to add tracking data entry
-
-        TODO: add functionality
 
         Args:
             tracking_data (TrackingData): tracking data object
