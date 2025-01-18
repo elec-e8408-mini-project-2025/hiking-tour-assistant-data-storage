@@ -53,10 +53,7 @@ def create_tables(conn):
 
 
 def initialize_database():
-    """Calls a method to activate the object that enables database connection.
-
-    Calls methods to delete and create tables to database.
-
+    """Initializes the database if one does not exist
     """
 
     logger.debug("BEGIN")
