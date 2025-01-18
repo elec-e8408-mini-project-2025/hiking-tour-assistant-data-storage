@@ -24,7 +24,8 @@ class TrackingDataRepository:
         """
         cursor = self._connection.cursor()
 
-        cursor.execute("SELECT col1, col2 FROM TRACKING_DATA")
+        cursor.execute(
+            "SELECT id, date, name, distance, steps, calories FROM TRACKING_DATA")
         rows = cursor.fetchall()
 
         columns = [description[0] for description in cursor.description]
@@ -40,10 +41,13 @@ class TrackingDataRepository:
 
         cursor = self._connection.cursor()
         cursor.execute('''INSERT INTO TRACKING_DATA
-                    (col1, col2) 
+                    (date, name, distance, steps, calories) 
                     VALUES (?,?)''',
-                       [tracking_data.col1,
-                        tracking_data.col2]
+                       [tracking_data.date,
+                        tracking_data.name,
+                        tracking_data.distance,
+                        tracking_data.steps,
+                        tracking_data.calories]
                        )
         self._connection.commit()
 
