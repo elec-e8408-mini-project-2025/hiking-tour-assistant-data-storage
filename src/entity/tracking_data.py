@@ -2,6 +2,16 @@ class TrackingDataEntry:
     """TODO: add docstring
     """
 
-    def __init__(self, value1: str, value2: str):
-        self.col1 = value1
-        self.col2 = value2
+    def __init__(
+            self,
+            date: str,
+            name: str,
+            distance: float,
+            steps: int,
+            calories: float
+    ):
+        self.date = date
+        self.name = name
+        self.distance = distance
+        self.steps = steps
+        self.calories = calories
