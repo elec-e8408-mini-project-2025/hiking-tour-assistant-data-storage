@@ -51,6 +51,22 @@ class TrackingDataRepository:
                        )
         self._connection.commit()
 
+    def fetch_top_entry(self) -> tuple | None:
+        """Get the entry with the longest distance
+        """
+
+        cursor = self._connection.cursor()
+
+        cursor.execute(
+            '''SELECT id, date, name, MAX(distance) as distance, steps, calories FROM TRACKING_DATA''')
+
+        row = cursor.fetchone()
+
+        if not row:
+            row = None
+
+        return row
+
 
 default_tracking_data_repository = TrackingDataRepository(
     get_database_connection())
