@@ -40,12 +40,8 @@ def create_tables(conn):
     logger.debug("BEGIN")
     cursor = conn.cursor()
 
-    cursor.execute('''
-        CREATE TABLE TRACKING_DATA (
-            col1 TEXT,
-            col2 TEXT
-        )
-    ''')
+    with open('schema.sql') as schema:
+        cursor.executescript(schema.read())
 
     conn.commit()
 
