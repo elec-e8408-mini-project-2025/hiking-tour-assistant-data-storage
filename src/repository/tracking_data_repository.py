@@ -1,0 +1,52 @@
+from database_connection import get_database_connection
+from entity.tracking_data import TrackingDataEntry
+
+
+class TrackingDataRepository:
+    """A class for managing data queries related to user objects
+    """
+
+    def __init__(self, connection) -> None:
+        """A constructor for the class.
+
+        Args:
+            connection (sqlite3 object): an initialized database connection
+        """
+        self._connection = connection
+
+    def fetch_all_tracking_data(self) -> tuple[list, list]:
+        """method for fetching all tracking data
+
+        Returns:
+            dict: returns a dictionary with  as keys and passwords and roles as items.
+        """
+        cursor = self._connection.cursor()
+
+        cursor.execute("SELECT col1, col2 FROM TRACKING_DATA")
+        rows = cursor.fetchall()
+
+        columns = [description[0] for description in cursor.description]
+
+        return columns, rows
+
+    def add_entry(self, tracking_data: TrackingDataEntry) -> None:
+        """A method to add tracking data entry
+
+        TODO: add functionality
+
+        Args:
+            tracking_data (TrackingData): tracking data object
+        """
+
+        cursor = self._connection.cursor()
+        cursor.execute('''INSERT INTO TRACKING_DATA
+                    (col1, col2) 
+                    VALUES (?,?)''',
+                       [tracking_data.col1,
+                        tracking_data.col2]
+                       )
+        self._connection.commit()
+
+
+default_tracking_data_repository = TrackingDataRepository(
+    get_database_connection())

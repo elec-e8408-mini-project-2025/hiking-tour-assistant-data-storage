@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+</head>
+<body>
+    <h1>Hello Flask World!</h1>
+    
+    <p>Our awesome views will be rendered here. </p>
+
+    <h2>Table example</h2>
+
+    <table>
+        <thead>
+            {% for column in columns %}
+                <th>{{ column }}</th>
+            {% endfor %}
+        </thead>
+        <tbody>
+            {% for row in rows %}
+            <tr>
+                {% for value in row%}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
+
