@@ -12,9 +12,6 @@ from repository.tracking_data_repository import default_tracking_data_repository
 def hello():
     logging.debug("BEGIN")
 
-    data1 = TrackingDataEntry(str(uuid.uuid4()), str(uuid.uuid4()))
-    repository.add_entry(data1)
-
     columns, rows = repository.fetch_all_tracking_data()
 
     logging.debug("END")
