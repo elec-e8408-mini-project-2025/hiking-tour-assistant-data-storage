@@ -1,0 +1,30 @@
+# Default python venv
+venv/
+
+# Default database path
+data/
+
+# Caches
+.pytest_cache
+__pycache__
+*cache*
+
+# Possible coverage repots 
+.coverage
+htmlcov
+sources
+
+# .env files should not be pushed to remote repository
+**/.env
+**/.env.test
+
+# VS Code files
+.vscode/
+
+# For generated log outputs
+*.log
+logs/
+
+# For storing temporary files
+tmp/
+
