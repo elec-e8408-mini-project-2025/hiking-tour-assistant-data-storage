@@ -9,4 +9,4 @@ logger.setLevel(logging.DEBUG)
 
 app = Flask(__name__)
 
-from controller import main_view
+from controller import view
