@@ -30,7 +30,7 @@ class BTQuick(object):
         "Failed to power on BT controller on the operating system."
 
     def connect_to_device_by_name(self, bt_device_name, bt_device_mac=""):
-        ret = check_output(["bluetoothctl", "--timeout", "5", "scan", "on"], text=True)
+        ret = check_output(["bluetoothctl", "--timeout", "10", "scan", "on"], text=True)
         ret = check_output(["bluetoothctl", "devices"], text=True)
         for found_device in ret.split("\n"):
             if bt_device_name in found_device and bt_device_mac in found_device:
@@ -92,4 +92,4 @@ def example_use():
         print("Steps", trip_json["Steps"])
         print("Avspeed", trip_json["AvgSpeed"])
 
-example_use()
+#example_use()
