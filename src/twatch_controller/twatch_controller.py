@@ -57,24 +57,30 @@ class Twatch(object):
         self.bluetooth_id = bluetooth_id
         self.bluetooth_mac = bluetooth_mac 
 
+
+    # Connect to twatch if available and return a json array of all data
+    # If no data is available or the twatch is unreachable it will return a json list with length 0
     def get_trip_data(self):    
         bt = BTQuick()
-        bt.connect_to_device_by_name(self.bluetooth_id, self.bluetooth_mac)
-        bt.connect_device_socket()
+        try:
+            bt.connect_to_device_by_name(self.bluetooth_id, self.bluetooth_mac)
+            bt.connect_device_socket()
 
-        get_trip_addresses = bt.send_data_socket("GET")
+            get_trip_addresses = bt.send_data_socket("GET")
 
-        data = json.loads(bt.send_data_socket("GET /tripdata"))
+            data = json.loads(bt.send_data_socket("GET /tripdata"))
 
-        return_array = "["
+            return_array = "["
 
-        for trip_path in data["Paths"]:
-            return_array += bt.send_data_socket(f"GET {trip_path}")
-            return_array += ","
-        
-        return_array = return_array[:-1] + "]"
+            for trip_path in data["Paths"]:
+                return_array += bt.send_data_socket(f"GET {trip_path}")
+                return_array += ","
+            
+            return_array = return_array[:-1] + "]"
 
-        bt.destroy()
+            bt.destroy()
+        except:
+            return_array = "[]"
 
         return json.loads(return_array)
 
@@ -83,13 +89,14 @@ def example_use():
     a = Twatch()
 
     all_data_json = a.get_trip_data()
-
-    for trip_json in all_data_json:
-        print("- - - - - - - - - - - - - - -")
-        print("Trip_id:",trip_json["ID"])
-        print("Start_timestamp",trip_json["StartTimestamp"])
-        print("End_timestamp",trip_json["EndTimestamp"])
-        print("Steps", trip_json["Steps"])
-        print("Avspeed", trip_json["AvgSpeed"])
+    
+    if len(all_data_json) != 0:
+        for trip_json in all_data_json:
+            print("- - - - - - - - - - - - - - -")
+            print("Trip_id:",trip_json["ID"])
+            print("Start_timestamp",trip_json["StartTimestamp"])
+            print("End_timestamp",trip_json["EndTimestamp"])
+            print("Steps", trip_json["Steps"])
+            print("Avspeed", trip_json["AvgSpeed"])
 
 #example_use()
