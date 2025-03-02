@@ -1,0 +1,25 @@
+Fields      type          description
+
+Trip data TABLE
+
+trip_id     int/UUID      unique identifier for the trips
+date        date          date of the trip
+trip_name   str           Possible to name the trip OPTIONAL
+travel_dist float         distance travelled during the trip
+step_cnt    int           amount of steps taken
+calories    float         amount of calories burnt during the trip using kcal
+etc. height difference, time, average_speed, top_speed
+
+Personal data TABLE
+
+weight      float         weight of the person using kg
+name        str           name to be used on the statscreen
+
+Top values TABLE
+collation of the trip data table to keep all 
+  
+top_id      id/str        identifier for the value
+trip_id     int/UUID      identifier of the trip
+date        date          date of the trip
+trip_name   str           Possible to name the trip OPTIONAL
+value       float         value of the top value
