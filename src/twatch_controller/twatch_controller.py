@@ -113,4 +113,4 @@ def example_use():
             print("Steps", data_json["Steps"])
             print("Avspeed", data_json["AvgSpeed"])
             print("Tag", data_json["Tag"])
-example_use()
+#example_use()
