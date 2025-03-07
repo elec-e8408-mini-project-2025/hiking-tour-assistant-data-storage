@@ -60,7 +60,7 @@ class Twatch(object):
 
     # Connect to twatch if available and return a json array of all data
     # If no data is available or the twatch is unreachable it will return a json list with length 0
-    def get_trip_data(self):    
+    def get_trip_data(self, mark_when_synced=True, return_only_new_trips=False):    
         bt = BTQuick()
         try:
             bt.connect_to_device_by_name(self.bluetooth_id, self.bluetooth_mac)
@@ -75,6 +75,10 @@ class Twatch(object):
             for trip_path in data["Paths"]:
                 return_array += bt.send_data_socket(f"GET {trip_path}")
                 return_array += ","
+
+                if mark_when_synced == True:
+                    data = bt.send_data_socket(f"POST {{}} {trip_path}/tagset")
+        
             
             return_array = return_array[:-1] + "]"
 
@@ -82,21 +86,31 @@ class Twatch(object):
         except:
             return_array = "[]"
 
-        return json.loads(return_array)
+        all_data_json = json.loads(return_array)
+
+        if return_only_new_trips == True:
+            ret = []
+            for trip in all_data_json:
+                if trip["Data"]["Tag"] == 0 and trip["Data"]["StartTimestamp"] != "0-0-0 0:0:0":
+                    ret.append(trip)
+        else:
+            ret = all_data_json
+
+        return ret
 
 
 def example_use():
     a = Twatch()
 
-    all_data_json = a.get_trip_data()
-    
+    all_data_json = a.get_trip_data(return_only_new_trips=False, mark_when_synced=True)
     if len(all_data_json) != 0:
         for trip_json in all_data_json:
+            data_json = trip_json["Data"]
             print("- - - - - - - - - - - - - - -")
-            print("Trip_id:",trip_json["ID"])
-            print("Start_timestamp",trip_json["StartTimestamp"])
-            print("End_timestamp",trip_json["EndTimestamp"])
-            print("Steps", trip_json["Steps"])
-            print("Avspeed", trip_json["AvgSpeed"])
-
-#example_use()
+            print("Trip_id:",data_json["ID"])
+            print("Start_timestamp",data_json["StartTimestamp"])
+            print("End_timestamp",data_json["EndTimestamp"])
+            print("Steps", data_json["Steps"])
+            print("Avspeed", data_json["AvgSpeed"])
+            print("Tag", data_json["Tag"])
+example_use()
