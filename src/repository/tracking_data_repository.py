@@ -83,15 +83,18 @@ class TrackingDataRepository:
         logging.debug("BEGIN")
         logging.debug(f'Adding entry: {tracking_data}')
         cursor = self._connection.cursor()
-        cursor.execute('''INSERT INTO TRACKING_DATA
-                    (date, name, distance, steps, calories) 
-                    VALUES (?,?)''',
-                       [tracking_data.date,
-                        tracking_data.distance,
-                        tracking_data.steps,
-                        tracking_data.calories,
-                        tracking_data.avg_speed]
-                       )
+        query = '''INSERT INTO TRACKING_DATA
+                    (date, distance, steps, calories, avgspeed) 
+                    VALUES (?, ?, ?, ?, ?)'''
+        content = (\
+                    tracking_data.date,\
+                    tracking_data.distance,\
+                    tracking_data.steps,\
+                    tracking_data.calories,\
+                    tracking_data.avg_speed\
+                    )
+        print(content)
+        cursor.execute(query,content)
         self._connection.commit()
         logging.debug("END")
 

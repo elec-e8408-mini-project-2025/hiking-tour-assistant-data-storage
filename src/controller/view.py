@@ -97,3 +97,62 @@ def bluetooth_setup_execute():
     logging.debug("END")
 
     return redirect(url_for('bluetooth_setup_page'))
+
+def bluetooth_sync_routine():
+
+    #repository.setup_watch_device()
+    logging.debug("Polling new data from watch")
+    watch = Twatch()
+
+    data_json = watch.get_trip_data(return_only_new_trips=True, mark_when_synced=True)
+
+    for trip in data_json:
+        data_json = trip["Data"]
+        print("found new data")
+        logging.debug(f"Found new data with id {data_json["ID"]}")
+        try:
+            date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
+            date = ""
+            date += date_tmp[0]+"-"
+            if len(date_tmp[1]) == 2:
+                date += date_tmp[1]+"-"
+            else:
+                date += "0"+date_tmp[1]+"-"
+            
+            if len(date_tmp[2]) == 2:
+                date += date_tmp[2]
+            else:
+                date += "0"+date_tmp[2]
+
+            avg_speed = round(float(data_json["AvgSpeed"]), 1)
+
+            distance = round(int(data_json["Steps"]) * 0.76 / 1000, 2)
+
+            steps = int(data_json["Steps"])
+            
+            # SRS documentation for calory calculations
+            calories = round( distance * 56 / 1000, 1)
+
+            entry = TrackingDataEntry(date=date, avg_speed=avg_speed,distance=distance,steps=steps,calories=calories)
+            print(date)
+            print(avg_speed)
+            print(distance)
+            print(steps)
+            print(calories)
+        except:
+            print("failed")
+            logging.debug("Failed to add entry for unknown reason.")
+            continue
+
+        logging.debug("Entry parsed succesfully. Adding entry.")
+        repository.add_entry(entry)
+
+@app.route('/bluetooth-setup/poll')
+def bluetooth_poll_data():
+    logging.debug("BEGIN")
+
+    bluetooth_sync_routine()
+    
+    logging.debug("END")
+
+    return redirect(url_for('bluetooth_setup_page'))
