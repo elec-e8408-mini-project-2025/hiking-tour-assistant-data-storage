@@ -108,7 +108,7 @@ def bluetooth_sync_routine():
 
     for trip in data_json:
         data_json = trip["Data"]
-        print("found new data")
+        #print("found new data")
         logging.debug(f"Found new data with id {data_json["ID"]}")
         try:
             date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
@@ -134,13 +134,13 @@ def bluetooth_sync_routine():
             calories = round( distance * 56 / 1000, 1)
 
             entry = TrackingDataEntry(date=date, avg_speed=avg_speed,distance=distance,steps=steps,calories=calories)
-            print(date)
-            print(avg_speed)
-            print(distance)
-            print(steps)
-            print(calories)
+            #print(date)
+            #print(avg_speed)
+            #print(distance)
+            #print(steps)
+            #print(calories)
         except:
-            print("failed")
+            #print("failed")
             logging.debug("Failed to add entry for unknown reason.")
             continue
 

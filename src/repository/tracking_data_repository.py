@@ -93,7 +93,7 @@ class TrackingDataRepository:
                     tracking_data.calories,\
                     tracking_data.avg_speed\
                     )
-        print(content)
+        #print(content)
         cursor.execute(query,content)
         self._connection.commit()
         logging.debug("END")
