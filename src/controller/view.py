@@ -2,7 +2,7 @@ import logging
 import uuid
 from app import app
 from flask import render_template, redirect, url_for
-
+from twatch_controller.twatch_controller import Twatch
 from entity.tracking_data import TrackingDataEntry
 
 from repository.tracking_data_repository import default_tracking_data_repository as repository
@@ -58,7 +58,7 @@ def hikes_views(hikeid):
     return redirect(url_for('hikes_list'))
 
 @app.route('/bluetooth-setup')
-def bluetooth_setup():
+def bluetooth_setup_page():
     logging.debug("BEGIN")
     device_data = repository.fetch_device_data()
     if device_data != None:
@@ -80,8 +80,20 @@ def bluetooth_setup():
 def bluetooth_setup_execute():
     logging.debug("BEGIN")
 
-    repository.setup_watch_device()
+    #repository.setup_watch_device()
+    logging.debug("Searching for new device")
+    watch = Twatch()
+    watch.search_mac_address()
 
+    device_name = watch.get_bluetooth_id()
+    device_mac_address = watch.get_bluetooth_mac()
+    if device_name == "" or device_mac_address == "":
+        logging.debug(f'Unable to find the bluetooth device')
+
+    else:
+        logging.debug(f'Updating device entry: {device_name}')
+        repository.update_watch_data(device_mac_address, device_name)
+        
     logging.debug("END")
 
-    return redirect(url_for('bluetooth_setup'))
+    return redirect(url_for('bluetooth_setup_page'))

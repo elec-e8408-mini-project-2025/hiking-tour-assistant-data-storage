@@ -53,30 +53,6 @@ class TrackingDataRepository:
                        )
         self._connection.commit()
 
-
-    def setup_watch_device(self) -> None:
-        """setup watch device and update sql table
-
-        Returns:
-            None
-        """
-        logging.debug("BEGIN")
-        logging.debug("Searching for new device")
-        watch = Twatch()
-        watch.search_mac_address()
-
-        device_name = watch.get_bluetooth_id()
-        device_mac_address = watch.get_bluetooth_mac()
-        if device_name == "" or device_mac_address == "":
-            logging.debug(f'Unable to find the bluetooth device')
-
-        else:
-            logging.debug(f'Updating device entry: {device_name}')
-            self.update_watch_data(device_mac_address, device_name)
-
-        logging.debug("END")
-
-
     def fetch_all_tracking_data(self) -> tuple[list, list]:
         """method for fetching all tracking data
 
