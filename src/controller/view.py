@@ -56,3 +56,32 @@ def hikes_views(hikeid):
     logging.debug("END")
 
     return redirect(url_for('hikes_list'))
+
+@app.route('/bluetooth-setup')
+def bluetooth_setup():
+    logging.debug("BEGIN")
+    device_data = repository.fetch_device_data()
+    if device_data != None:
+        device_mac_address = device_data[0]
+        device_name = device_data[1]
+        device_status = "setup complete"
+    else:
+        device_status = "please setup device"
+        device_name="None"
+        device_mac_address="None"
+
+
+    logging.debug("END")
+
+    return render_template('bluetooth-config.html', SETUP_STATUS=device_status, MACADDRESS=device_mac_address, DEVICE_NAME=device_name)
+
+
+@app.route('/bluetooth-setup/start')
+def bluetooth_setup_execute():
+    logging.debug("BEGIN")
+
+    repository.setup_watch_device()
+
+    logging.debug("END")
+
+    return redirect(url_for('bluetooth_setup'))

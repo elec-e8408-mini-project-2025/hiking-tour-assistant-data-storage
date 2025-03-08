@@ -9,7 +9,10 @@ class BTQuick(object):
         self.bt_connected_device_mac = ""
         self.bt_connected_device_socket = ""
         self.start_bt()
-        
+    
+    def get_mac_address(self):
+        return self.bt_connected_device_mac
+
     def destroy(self):
         if self.bt_connected_device_socket != "":
             self.bt_connected_device_socket.shutdown(socket.SHUT_RDWR)
@@ -57,6 +60,23 @@ class Twatch(object):
         self.bluetooth_id = bluetooth_id
         self.bluetooth_mac = bluetooth_mac 
 
+    # Search for twatch and update mac address
+    def search_mac_address(self):
+        bt = BTQuick()
+        try:
+            bt.connect_to_device_by_name(self.bluetooth_id)
+            mac = bt.get_mac_address()
+        except:
+            mac = ""
+        bt.destroy()
+        self.bluetooth_mac = mac
+        return mac
+
+    def get_bluetooth_mac(self):
+        return self.bluetooth_mac
+    
+    def get_bluetooth_id(self):
+        return self.bluetooth_id
 
     # Connect to twatch if available and return a json array of all data
     # If no data is available or the twatch is unreachable it will return a json list with length 0

@@ -1,7 +1,7 @@
 import logging
 from database_connection import get_database_connection
 from entity.tracking_data import TrackingDataEntry
-
+from twatch_controller.twatch_controller import Twatch
 
 class TrackingDataRepository:
     """A class for managing data queries related to user objects
@@ -14,6 +14,68 @@ class TrackingDataRepository:
             connection (sqlite3 object): an initialized database connection
         """
         self._connection = connection
+
+    def fetch_device_data(self) -> tuple[str, str] | None:
+        """method for fetching device data
+
+        Returns:
+            tuple[str, str]
+            str: mac-address
+            str: device-name
+        """
+        logging.debug("BEGIN")
+        cursor = self._connection.cursor()
+        res = cursor.execute('SELECT mac_address, device_name FROM HIKING_WATCH')
+        ret_res = res.fetchone()
+
+        if ret_res == None:
+            return None
+
+        mac_address = ret_res[0]
+        device_name = ret_res[1]
+        self._connection.commit()
+        logging.debug("END")
+
+        return [mac_address, device_name]
+    
+    def update_watch_data(self, mac_address, device_name):
+        """Empty hiking_watch table and update new values
+
+        Returns:
+            None
+        """
+        cursor = self._connection.cursor()
+        cursor.execute("DELETE FROM HIKING_WATCH")
+        cursor.execute('''INSERT INTO HIKING_WATCH
+                    (mac_address, device_name) 
+                    VALUES (?,?)''',
+                       [mac_address, device_name]
+                       )
+        self._connection.commit()
+
+
+    def setup_watch_device(self) -> None:
+        """setup watch device and update sql table
+
+        Returns:
+            None
+        """
+        logging.debug("BEGIN")
+        logging.debug("Searching for new device")
+        watch = Twatch()
+        watch.search_mac_address()
+
+        device_name = watch.get_bluetooth_id()
+        device_mac_address = watch.get_bluetooth_mac()
+        if device_name == "" or device_mac_address == "":
+            logging.debug(f'Unable to find the bluetooth device')
+
+        else:
+            logging.debug(f'Updating device entry: {device_name}')
+            self.update_watch_data(device_mac_address, device_name)
+
+        logging.debug("END")
+
 
     def fetch_all_tracking_data(self) -> tuple[list, list]:
         """method for fetching all tracking data
