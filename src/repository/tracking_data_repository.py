@@ -1,7 +1,8 @@
-import logging
 from database_connection import get_database_connection
 from entity.tracking_data import TrackingDataEntry
 from twatch_controller.twatch_controller import Twatch
+
+from app import logger
 
 class TrackingDataRepository:
     """A class for managing data queries related to user objects
@@ -23,7 +24,7 @@ class TrackingDataRepository:
             str: mac-address
             str: device-name
         """
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
         res = cursor.execute('SELECT mac_address, device_name FROM HIKING_WATCH')
         ret_res = res.fetchone()
@@ -34,7 +35,7 @@ class TrackingDataRepository:
         mac_address = ret_res[0]
         device_name = ret_res[1]
         self._connection.commit()
-        logging.debug("END")
+        logger.debug("END")
 
         return [mac_address, device_name]
     
@@ -61,7 +62,7 @@ class TrackingDataRepository:
             list: columns for fetched data based on descriptions
             list: row data
         """
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
 
         cursor.execute(
@@ -70,7 +71,7 @@ class TrackingDataRepository:
 
         columns = [description[0] for description in cursor.description]
 
-        logging.debug("END")
+        logger.debug("END")
         return columns, rows
 
     def add_entry(self, tracking_data: TrackingDataEntry) -> None:
@@ -80,8 +81,8 @@ class TrackingDataRepository:
             tracking_data (TrackingData): tracking data object
         """
 
-        logging.debug("BEGIN")
-        logging.debug(f'Adding entry: {tracking_data}')
+        logger.debug("BEGIN")
+        logger.debug(f'Adding entry: {tracking_data}')
         cursor = self._connection.cursor()
         query = '''INSERT INTO TRACKING_DATA
                     (date, distance, steps, calories, avgspeed) 
@@ -96,13 +97,13 @@ class TrackingDataRepository:
         #print(content)
         cursor.execute(query,content)
         self._connection.commit()
-        logging.debug("END")
+        logger.debug("END")
 
     def top_entry_for_distance(self) -> tuple | None:
         """Get the entry with the longest distance
         """
 
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
 
         cursor.execute(
@@ -113,14 +114,14 @@ class TrackingDataRepository:
         if not row:
             row = None
 
-        logging.debug("END")
+        logger.debug("END")
         return row
     
     def top_entry_for_speed(self) -> tuple | None:
         """Get the entry with the longest distance
         """
 
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
 
         cursor.execute(
@@ -131,14 +132,14 @@ class TrackingDataRepository:
         if not row:
             row = None
 
-        logging.debug("END")
+        logger.debug("END")
         return row
     
     def fetch_last_entry(self) -> tuple | None:
         """Get the entry with the longest distance
         """
 
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
 
         cursor.execute(
@@ -149,7 +150,7 @@ class TrackingDataRepository:
         if not row:
             row = None
 
-        logging.debug("END")
+        logger.debug("END")
         return row
         
         
@@ -157,7 +158,7 @@ class TrackingDataRepository:
 
     def fetch_avg_data(self) -> tuple | None:
 
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         cursor = self._connection.cursor()
 
         cursor.execute(
@@ -174,13 +175,13 @@ class TrackingDataRepository:
         if not row:
             row = None
 
-        logging.debug("END")
+        logger.debug("END")
         return row
     
 
     def delete_hike(self, hikeid: int) -> None:
 
-        logging.debug("BEGIN")
+        logger.debug("BEGIN")
         try:
             cursor = self._connection.cursor()
 
@@ -188,10 +189,10 @@ class TrackingDataRepository:
                 '''DELETE FROM TRACKING_DATA WHERE id= ? ''', (hikeid, ))
             
             self._connection.commit()
-            logging.debug("END")
+            logger.debug("END")
         except Exception as e:
             
-            logging.error(f'Exception raised when deleting hike id {hikeid}: {e}')
+            logger.error(f'Exception raised when deleting hike id {hikeid}: {e}')
             self._connection.rollback()
             raise
 
