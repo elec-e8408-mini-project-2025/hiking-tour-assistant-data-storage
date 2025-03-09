@@ -85,6 +85,8 @@ def bluetooth_setup_execute():
     watch = Twatch()
     watch.search_mac_address()
 
+    logging.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
+
     device_name = watch.get_bluetooth_id()
     device_mac_address = watch.get_bluetooth_mac()
     if device_name == "" or device_mac_address == "":
@@ -100,9 +102,11 @@ def bluetooth_setup_execute():
 
 def bluetooth_sync_routine():
 
+    logging.debug("BEGIN")
     #repository.setup_watch_device()
-    logging.debug("Polling new data from watch")
     watch = Twatch()
+
+    logging.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
 
     data_json = watch.get_trip_data(return_only_new_trips=True, mark_when_synced=True)
 
@@ -146,6 +150,7 @@ def bluetooth_sync_routine():
 
         logging.debug("Entry parsed succesfully. Adding entry.")
         repository.add_entry(entry)
+        logging.debug("END")
 
 @app.route('/bluetooth-setup/poll')
 def bluetooth_poll_data():
