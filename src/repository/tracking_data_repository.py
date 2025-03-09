@@ -161,7 +161,13 @@ class TrackingDataRepository:
         cursor = self._connection.cursor()
 
         cursor.execute(
-            '''SELECT AVG(distance) AS avg_distance, AVG(steps) AS avg_steps, AVG(calories) AS avg_calories, AVG(avgspeed) AS avg_avgspeed FROM TRACKING_DATA''')
+            '''SELECT
+                IFNULL(AVG(distance),0) AS avg_distance,
+                IFNULL(AVG(steps),0) AS avg_steps,
+                IFNULL(AVG(calories),0) AS avg_calories,
+                IFNULL (AVG(avgspeed),0) AS avg_avgspeed
+                FROM TRACKING_DATA
+            ''')
         
         row = cursor.fetchone()
 
