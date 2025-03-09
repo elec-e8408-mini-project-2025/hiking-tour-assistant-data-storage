@@ -21,6 +21,8 @@ def get_database_connection() -> sqlite3.Connection:
 
     if not os.path.exists(DATABASE_FILE_PATH):
         initialize_database()
+    else:
+        logger.debug(f'Connecting to existing database {DATABASE_FILE_PATH}')
 
     connection = sqlite3.connect(
         DATABASE_FILE_PATH, check_same_thread=False)
@@ -57,12 +59,16 @@ def initialize_database():
     if not os.path.exists(DATABASE_PATH):
         os.mkdir(DATABASE_PATH)
 
-    print(f"DATABASE_PATH {DATABASE_PATH}")
-    print(f"DATABSE FILE PATH {DATABASE_FILE_PATH}")
+    logger.debug(f'Database directory: {DATABASE_PATH}')
+    logger.debug(f'Database filename: {DATABASE_FILE_PATH}')
 
+    # If database does not yet exist, connect generates a new database
     conn = sqlite3.connect(DATABASE_FILE_PATH)
     conn.row_factory = sqlite3.Row
+    
+    logger.debug('Creating database from schema.sql')
     create_tables(conn)
+    
     conn.close()
 
     logger.debug("END")

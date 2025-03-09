@@ -1,7 +1,7 @@
 import logging
 from database_connection import get_database_connection
 from entity.tracking_data import TrackingDataEntry
-
+from twatch_controller.twatch_controller import Twatch
 
 class TrackingDataRepository:
     """A class for managing data queries related to user objects
@@ -14,6 +14,44 @@ class TrackingDataRepository:
             connection (sqlite3 object): an initialized database connection
         """
         self._connection = connection
+
+    def fetch_device_data(self) -> tuple[str, str] | None:
+        """method for fetching device data
+
+        Returns:
+            tuple[str, str]
+            str: mac-address
+            str: device-name
+        """
+        logging.debug("BEGIN")
+        cursor = self._connection.cursor()
+        res = cursor.execute('SELECT mac_address, device_name FROM HIKING_WATCH')
+        ret_res = res.fetchone()
+
+        if ret_res == None:
+            return None
+
+        mac_address = ret_res[0]
+        device_name = ret_res[1]
+        self._connection.commit()
+        logging.debug("END")
+
+        return [mac_address, device_name]
+    
+    def update_watch_data(self, mac_address, device_name):
+        """Empty hiking_watch table and update new values
+
+        Returns:
+            None
+        """
+        cursor = self._connection.cursor()
+        cursor.execute("DELETE FROM HIKING_WATCH")
+        cursor.execute('''INSERT INTO HIKING_WATCH
+                    (mac_address, device_name) 
+                    VALUES (?,?)''',
+                       [mac_address, device_name]
+                       )
+        self._connection.commit()
 
     def fetch_all_tracking_data(self) -> tuple[list, list]:
         """method for fetching all tracking data
@@ -45,15 +83,18 @@ class TrackingDataRepository:
         logging.debug("BEGIN")
         logging.debug(f'Adding entry: {tracking_data}')
         cursor = self._connection.cursor()
-        cursor.execute('''INSERT INTO TRACKING_DATA
-                    (date, name, distance, steps, calories) 
-                    VALUES (?,?)''',
-                       [tracking_data.date,
-                        tracking_data.distance,
-                        tracking_data.steps,
-                        tracking_data.calories,
-                        tracking_data.avg_speed]
-                       )
+        query = '''INSERT INTO TRACKING_DATA
+                    (date, distance, steps, calories, avgspeed) 
+                    VALUES (?, ?, ?, ?, ?)'''
+        content = (\
+                    tracking_data.date,\
+                    tracking_data.distance,\
+                    tracking_data.steps,\
+                    tracking_data.calories,\
+                    tracking_data.avg_speed\
+                    )
+        #print(content)
+        cursor.execute(query,content)
         self._connection.commit()
         logging.debug("END")
 
@@ -120,7 +161,13 @@ class TrackingDataRepository:
         cursor = self._connection.cursor()
 
         cursor.execute(
-            '''SELECT AVG(distance) AS avg_distance, AVG(steps) AS avg_steps, AVG(calories) AS avg_calories, AVG(avgspeed) AS avg_avgspeed FROM TRACKING_DATA''')
+            '''SELECT
+                IFNULL(AVG(distance),0) AS avg_distance,
+                IFNULL(AVG(steps),0) AS avg_steps,
+                IFNULL(AVG(calories),0) AS avg_calories,
+                IFNULL (AVG(avgspeed),0) AS avg_avgspeed
+                FROM TRACKING_DATA
+            ''')
         
         row = cursor.fetchone()
 

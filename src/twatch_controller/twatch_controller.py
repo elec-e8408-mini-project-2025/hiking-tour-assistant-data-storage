@@ -1,3 +1,4 @@
+import logging
 from subprocess import check_output
 from time import sleep
 import socket
@@ -9,7 +10,10 @@ class BTQuick(object):
         self.bt_connected_device_mac = ""
         self.bt_connected_device_socket = ""
         self.start_bt()
-        
+    
+    def get_mac_address(self):
+        return self.bt_connected_device_mac
+
     def destroy(self):
         if self.bt_connected_device_socket != "":
             self.bt_connected_device_socket.shutdown(socket.SHUT_RDWR)
@@ -30,16 +34,21 @@ class BTQuick(object):
         "Failed to power on BT controller on the operating system."
 
     def connect_to_device_by_name(self, bt_device_name, bt_device_mac=""):
+        logging.debug("BEGIN")
         ret = check_output(["bluetoothctl", "--timeout", "10", "scan", "on"], text=True)
         ret = check_output(["bluetoothctl", "devices"], text=True)
         for found_device in ret.split("\n"):
             if bt_device_name in found_device and bt_device_mac in found_device:
                 self.bt_connected_device_mac = found_device.split(" ")[1]
+                logging.debug(f'FOUND: {found_device}')
+                logging.debug(f'Set bt_connected_device_mac to {self.bt_connected_device_mac}, from {found_device.split(" ")}')
                 print("Found:", found_device)
                 break
         assert self.bt_connected_device_mac != "",\
         "Unable to connect to usb device"
-        ret = check_output(["bluetoothctl", "pair", self.bt_connected_device_mac], text=True)
+        ret = check_output(["echo", "yes", "|", "bluetoothctl", "pair", self.bt_connected_device_mac], text=True)
+        logging.debug(f"Checking output: {ret}")
+        logging.debug("END")
 
     def connect_device_socket(self):
         self.bt_connected_device_socket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
@@ -57,6 +66,26 @@ class Twatch(object):
         self.bluetooth_id = bluetooth_id
         self.bluetooth_mac = bluetooth_mac 
 
+    # Search for twatch and update mac address
+    def search_mac_address(self):
+        logging.debug("BEGIN")
+        bt = BTQuick()
+        try:
+            bt.connect_to_device_by_name(self.bluetooth_id)
+            mac = bt.get_mac_address()
+        except:
+            logging.debug("Exception occured, setting MAC to empty string")
+            mac = ""
+        bt.destroy()
+        self.bluetooth_mac = mac
+        logging.debug("END")
+        return mac
+
+    def get_bluetooth_mac(self):
+        return self.bluetooth_mac
+    
+    def get_bluetooth_id(self):
+        return self.bluetooth_id
 
     # Connect to twatch if available and return a json array of all data
     # If no data is available or the twatch is unreachable it will return a json list with length 0
