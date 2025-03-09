@@ -109,7 +109,7 @@ def bluetooth_sync_routine():
     for trip in data_json:
         data_json = trip["Data"]
         #print("found new data")
-        logging.debug(f"Found new data with id {data_json["ID"]}")
+        logging.debug(f"Found new data with id {data_json['ID']}")
         try:
             date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
             date = ""
