@@ -42,7 +42,7 @@ class BTQuick(object):
                 break
         assert self.bt_connected_device_mac != "",\
         "Unable to connect to usb device"
-        ret = check_output(["bluetoothctl", "pair", self.bt_connected_device_mac], text=True)
+        ret = check_output(["echo", "yes", "|", "bluetoothctl", "pair", self.bt_connected_device_mac], text=True)
 
     def connect_device_socket(self):
         self.bt_connected_device_socket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
