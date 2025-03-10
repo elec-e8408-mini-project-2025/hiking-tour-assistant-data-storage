@@ -38,15 +38,6 @@ def hikes_list():
     return render_template('hikes.html', columns=columns, rows=rows)
 
 
-@app.route('/config')
-def config():
-    logger.debug("BEGIN")
-
-    logger.debug("END")
-
-    return render_template('config.html')
-
-
 @app.route('/hike/<int:hikeid>', methods=['POST'])
 def hikes_views(hikeid):
     logger.debug("BEGIN")
