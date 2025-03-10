@@ -1,6 +1,5 @@
 from database_connection import get_database_connection
 from entity.tracking_data import TrackingDataEntry
-from twatch_controller.twatch_controller import Twatch
 
 from app import logger
 
@@ -194,7 +193,7 @@ class TrackingDataRepository:
             
             logger.error(f'Exception raised when deleting hike id {hikeid}: {e}')
             self._connection.rollback()
-            raise
+            raise Exception(e)
 
         
     

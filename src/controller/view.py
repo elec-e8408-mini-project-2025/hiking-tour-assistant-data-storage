@@ -2,8 +2,8 @@ from app import logger
 import uuid
 from app import app
 from flask import render_template, redirect, url_for, flash, get_flashed_messages
-from twatch_controller.twatch_controller import Twatch
-from entity.tracking_data import TrackingDataEntry
+from twatch_controller.twatch_controller import bluetooth_sync_routine
+
 
 from repository.tracking_data_repository import default_tracking_data_repository as repository
 
@@ -98,58 +98,6 @@ def bluetooth_setup_execute():
     logger.debug("END")
 
     return redirect(url_for('bluetooth_setup_page'))
-
-def bluetooth_sync_routine():
-
-    logger.debug("BEGIN")
-    #repository.setup_watch_device()
-    watch = Twatch()
-
-    logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
-
-    data_json = watch.get_trip_data(return_only_new_trips=True, mark_when_synced=True)
-
-    for trip in data_json:
-        data_json = trip["Data"]
-        #print("found new data")
-        logger.debug(f"Found new data with id {data_json['ID']}")
-        try:
-            date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
-            date = ""
-            date += date_tmp[0]+"-"
-            if len(date_tmp[1]) == 2:
-                date += date_tmp[1]+"-"
-            else:
-                date += "0"+date_tmp[1]+"-"
-            
-            if len(date_tmp[2]) == 2:
-                date += date_tmp[2]
-            else:
-                date += "0"+date_tmp[2]
-
-            avg_speed = round(float(data_json["AvgSpeed"]), 1)
-
-            distance = round(int(data_json["Steps"]) * 0.76 / 1000, 2)
-
-            steps = int(data_json["Steps"])
-            
-            # SRS documentation for calory calculations
-            calories = round( distance * 56 / 1000, 1)
-
-            entry = TrackingDataEntry(date=date, avg_speed=avg_speed,distance=distance,steps=steps,calories=calories)
-            #print(date)
-            #print(avg_speed)
-            #print(distance)
-            #print(steps)
-            #print(calories)
-        except:
-            #print("failed")
-            logger.debug("Failed to add entry for unknown reason.")
-            continue
-
-        logger.debug("Entry parsed succesfully. Adding entry.")
-        repository.add_entry(entry)
-        logger.debug("END")
 
 @app.route('/bluetooth-setup/poll')
 def bluetooth_poll_data():
