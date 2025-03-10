@@ -6,6 +6,7 @@ app = Flask(__name__)
 
 # In production the secret key is fetched from env variables.
 # In test environment default value can be used to enable Flask sessions.
+# Flask sessions are needed for handling flash-messages. 
 app.secret_key = SECRET_KEY
 
 # Configure App to show debug logs
