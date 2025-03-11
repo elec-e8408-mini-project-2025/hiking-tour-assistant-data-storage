@@ -3,6 +3,7 @@ import uuid
 from app import app
 from flask import render_template, redirect, url_for, flash, get_flashed_messages
 from twatch_controller.twatch_controller import bluetooth_sync_routine
+from twatch_controller.t_watch import Twatch
 
 
 from repository.tracking_data_repository import default_tracking_data_repository as repository
