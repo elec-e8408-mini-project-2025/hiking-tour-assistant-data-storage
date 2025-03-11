@@ -80,24 +80,28 @@ def bluetooth_setup_page():
 def bluetooth_setup_execute():
     logger.debug("BEGIN")
 
-    #repository.setup_watch_device()
-    logger.debug("Searching for new device")
-    watch = Twatch()
-    watch.search_mac_address()
+    try:
+        #repository.setup_watch_device()
+        logger.debug("Searching for new device")
+        watch = Twatch()
+        watch.search_mac_address()
 
-    logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
+        logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
 
-    device_name = watch.get_bluetooth_id()
-    device_mac_address = watch.get_bluetooth_mac()
-    if device_name == "" or device_mac_address == "":
-        logger.debug(f'Unable to find the bluetooth device')
+        device_name = watch.get_bluetooth_id()
+        device_mac_address = watch.get_bluetooth_mac()
+        if device_name == "" or device_mac_address == "":
+            logger.debug(f'Unable to find the bluetooth device')
 
-    else:
-        logger.debug(f'Updating device entry: {device_name}')
-        repository.update_watch_data(device_mac_address, device_name)
-        
+        else:
+            logger.debug(f'Updating device entry: {device_name}')
+            repository.update_watch_data(device_mac_address, device_name)
+        flash(f'Paired a new device successfully', "success")
+            
+    except Exception as e:
+        flash(f'Pairing a new device failer: {e}', "danger")
+    
     logger.debug("END")
-
     return redirect(url_for('bluetooth_setup_page'))
 
 @app.route('/bluetooth-setup/poll')
