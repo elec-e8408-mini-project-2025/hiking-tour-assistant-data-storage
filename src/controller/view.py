@@ -11,6 +11,12 @@ from repository.tracking_data_repository import default_tracking_data_repository
 
 @app.route('/')
 def main():
+    """
+        Prepares and renders the main view template of the web application
+
+        The function fetches top hiking trip data from repository
+        which is then populated in the rendered view
+    """
     logger.debug("BEGIN")
 
     top_distance = repository.top_entry_for_distance()
@@ -29,6 +35,10 @@ def main():
 
 @app.route('/hikes')
 def hikes_list():
+    """
+        Prepares and renders the hikes template. The view
+        contains data from all hikes in persistent memory
+    """
     logger.debug("BEGIN")
 
     columns, rows = repository.fetch_all_tracking_data()
@@ -41,6 +51,10 @@ def hikes_list():
 
 @app.route('/hike/<int:hikeid>', methods=['POST'])
 def hikes_views(hikeid):
+    """
+        Handles deletion of a selected hike
+        The delete request is sent with a POST request
+    """
     logger.debug("BEGIN")
 
     repository.delete_hike(hikeid)
@@ -51,6 +65,9 @@ def hikes_views(hikeid):
 
 @app.route('/bluetooth-setup')
 def bluetooth_setup_page():
+    """
+        Renders the bluetooth configuration template view
+    """
     logger.debug("BEGIN")
     device_data = repository.fetch_device_data()
     if device_data != None:
@@ -78,6 +95,8 @@ def bluetooth_setup_page():
 
 @app.route('/bluetooth-setup/start')
 def bluetooth_setup_execute():
+    """Handles the pairing of a new LilyGO T-Watch"""
+    
     logger.debug("BEGIN")
 
     try:
@@ -106,6 +125,11 @@ def bluetooth_setup_execute():
 
 @app.route('/bluetooth-setup/poll')
 def bluetooth_poll_data():
+    """
+        Handles the synchronization of hiking session data from 
+        the LilyGO T-Watch to the persistent storage of the 
+        Web Application
+    """
     logger.debug("BEGIN")
 
     try:
