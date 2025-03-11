@@ -118,7 +118,7 @@ def bluetooth_setup_execute():
         flash(f'Paired a new device successfully', "success")
             
     except Exception as e:
-        flash(f'Pairing a new device failer: {e}', "danger")
+        flash(f'Pairing a new device failed: {e}', "danger")
     
     logger.debug("END")
     return redirect(url_for('bluetooth_setup_page'))
