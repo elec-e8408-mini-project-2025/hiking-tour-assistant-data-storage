@@ -156,6 +156,7 @@ class TrackingDataRepository:
     
 
     def fetch_avg_data(self) -> tuple | None:
+        """Get average data for all columns with numerical data"""
 
         logger.debug("BEGIN")
         cursor = self._connection.cursor()
@@ -179,6 +180,7 @@ class TrackingDataRepository:
     
 
     def delete_hike(self, hikeid: int) -> None:
+        """Delete a hike with a given id"""
 
         logger.debug("BEGIN")
         try:
