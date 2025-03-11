@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FlaskApp</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+<body>
+    
+    
+    
+    <div class="container">
+
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1>Bluetooth config</h1>
+            </div>
+        </div>
+
+        <div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="row mb-4">
+                {% for category, message in messages %}
+                <div class="col-12 col-md-4 mb-4"> 
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        {% endwith %}
+        </div>
+        
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <p>In this view you can setup the Hiking Watch Bluetooth connection.</p>
+                <p><b>Insructions</b></p>
+                <ul>
+                    <li>To setup a connection to your Hiking watch, press 'Setup new Hiking Watch'</li>
+                    <li>To synchronize data once connection has been setup, press 'Sync data from Hiking watch'</li>
+                </ul>
+
+                <p>Please note that both operations may take some time. Do not close or refresh the browser window while the operation is ongoing.</p>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12">
+                <form action="/" method="GET">
+                    <button type="submit" class="btn btn-primary">Back</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="row mb-4 justify-content-center">
+            <div class="col-12 col-md-4 mb-4"> 
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Device: {{ DEVICE_NAME }}  </h5>
+                        <h6 class="card-subtitle mb-2 text-body-secondary">Status: {{ SETUP_STATUS }}</h6>
+                        <p class="card-text"> <b>Mac Address:</b> {{ MACADDRESS }} </p>
+                    </div>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a href="/bluetooth-setup/start" class="'card-link" id="setup-start">Setup new Hiking watch</a>
+                        <div id="spinner-start" class="spinner-border text-primary" role="status" style="display: none;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    
+                    </li>
+                    <li class="list-group-item">
+                        <a href="/bluetooth-setup/poll" class="'card-link" id="setup-poll">Sync data from Hiking watch</a>
+                        <div id="spinner-poll" class="spinner-border text-primary" role="status" style="display: none;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        
+        <!--
+        <div class="row">
+            <div class="col-12 col-md-4 mb-4"> 
+                <form action="/bluetooth-setup/start" method="GET">
+                    <button type="submit" class="btn btn-primary">Setup new Hiking Watch</button>
+                </form>
+                
+            </div>
+            <div class="col-12 col-md-4 mb-4"> 
+                <form action="/bluetooth-setup/poll" method="GET">
+                    <button type="submit" class="btn btn-primary">Sync data from Hiking Watch</button>
+                </form>
+                
+            </div>
+            
+        </div>
+
+        <div class="row">
+            <div class="col-12 col-md-4 mb-4"> 
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        </div>
+        -->
+
+    </div>
+
+    <script>
+        document.getElementById("setup-start").addEventListener("click", function() {
+            document.getElementById("spinner-start").style.display = "inline-block"; 
+        });
+    </script>
+
+<script>
+    document.getElementById("setup-poll").addEventListener("click", function() {
+        document.getElementById("spinner-poll").style.display = "inline-block"; 
+    });
+</script>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>
+
