@@ -1,5 +1,7 @@
 class TrackingDataEntry:
-    """TODO: add docstring
+    """
+        An entity for tracking data (aka session data).
+        Each entity contains the information of one hiking session
     """
 
     def __init__(
