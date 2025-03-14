@@ -102,6 +102,8 @@ enable_on_startup(){
     echo "Description=Hiking watch web application." >> "$SYSTEMD_FILE_PATH"
     echo "" >> "$SYSTEMD_FILE_PATH"
     echo "[Service]" >> "$SYSTEMD_FILE_PATH"
+    echo "Restart=on-failure"
+    echo "RestartSec=10s"
     echo "WorkingDirectory=$CURRENT_DIR" >> "$SYSTEMD_FILE_PATH"
     echo "ExecStart=/usr/bin/bash $CURRENT_DIR/start-app.sh" >> "$SYSTEMD_FILE_PATH"
     echo "" >> "$SYSTEMD_FILE_PATH"
