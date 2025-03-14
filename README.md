@@ -42,7 +42,7 @@ Run the installation script with
 To run the app use 
 
 ```bash
-flask --app src/app.py run
+flask --app src/app.py run --host=0.0.0.0
 ```
 
 To debug:
