@@ -95,6 +95,23 @@ install_dependencies() {
 
 }
 
+enable_on_startup(){
+    SYSTEMD_FILE_PATH="/etc/systemd/system/web-app-hiking-watch.service"
+    CURRENT_DIR="$(pwd)"
+    echo "[Unit]" > "$SYSTEMD_FILE_PATH"
+    echo "Description=Hiking watch web application." >> "$SYSTEMD_FILE_PATH"
+    echo "" >> "$SYSTEMD_FILE_PATH"
+    echo "[Service]" >> "$SYSTEMD_FILE_PATH"
+    echo "WorkingDirectory=$CURRENT_DIR" >> "$SYSTEMD_FILE_PATH"
+    echo "ExecStart=/usr/bin/bash $CURRENT_DIR/start-app.sh" >> "$SYSTEMD_FILE_PATH"
+    echo "" >> "$SYSTEMD_FILE_PATH"
+    echo "[Install]" >> "$SYSTEMD_FILE_PATH"
+    echo "WantedBy=multi-user.target" >> "$SYSTEMD_FILE_PATH"
+
+    systemctl daemon-reload
+    systemctl start web-app-hiking-watch.service
+    systemctl enable web-app-hiking-watch.service
+}
 
 echo -e "$TITL"
 
@@ -103,6 +120,10 @@ check_python_version
 create_virtual_env
 install_dependencies
 
-
+echo "Should we add a service entry and enable the web application on startup? (y/n)"
+read 
+if [ "$REPLY" == "y" ]; then
+    sudo bash -c "$(declare -f enable_on_startup); enable_on_startup"
+fi
 
 echo -e "$FIN_INFO"
