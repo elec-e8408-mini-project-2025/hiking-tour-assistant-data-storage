@@ -45,7 +45,8 @@ run_app() {
     else
         echo -e "$INFO Running flask with debug mode off"
         echo -e "$INFO Hint: add argument 'debug' after script to activate debug mode"
-        flask --app $APP run
+        # flask --app $APP run
+        flask --app $APP run --host=0.0.0.0 # The web application is now available in local network
     fi
 }
 

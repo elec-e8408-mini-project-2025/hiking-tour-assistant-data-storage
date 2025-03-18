@@ -1,6 +1,5 @@
 from database_connection import get_database_connection
 from entity.tracking_data import TrackingDataEntry
-from twatch_controller.twatch_controller import Twatch
 
 from app import logger
 
@@ -157,6 +156,7 @@ class TrackingDataRepository:
     
 
     def fetch_avg_data(self) -> tuple | None:
+        """Get average data for all columns with numerical data"""
 
         logger.debug("BEGIN")
         cursor = self._connection.cursor()
@@ -180,6 +180,7 @@ class TrackingDataRepository:
     
 
     def delete_hike(self, hikeid: int) -> None:
+        """Delete a hike with a given id"""
 
         logger.debug("BEGIN")
         try:
@@ -194,7 +195,7 @@ class TrackingDataRepository:
             
             logger.error(f'Exception raised when deleting hike id {hikeid}: {e}')
             self._connection.rollback()
-            raise
+            raise Exception(e)
 
         
     

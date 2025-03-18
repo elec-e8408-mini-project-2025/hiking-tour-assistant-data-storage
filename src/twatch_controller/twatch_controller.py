@@ -3,130 +3,11 @@ from time import sleep
 import socket
 import json
 
+from repository.tracking_data_repository import default_tracking_data_repository as repository
+from entity.tracking_data import TrackingDataEntry
+from twatch_controller.t_watch import Twatch
+
 from app import logger
-
-class BTQuick(object):
-    def __init__(self):
-        self.bt_controller_mac = ""
-        self.bt_connected_device_mac = ""
-        self.bt_connected_device_socket = ""
-        self.start_bt()
-    
-    def get_mac_address(self):
-        return self.bt_connected_device_mac
-
-    def destroy(self):
-        if self.bt_connected_device_socket != "":
-            self.bt_connected_device_socket.shutdown(socket.SHUT_RDWR)
-            self.bt_connected_device_socket.close()
-
-        if self.bt_connected_device_mac != "":
-            sleep(2)
-            ret = check_output(["bluetoothctl", "disconnect", self.bt_connected_device_mac], text=True)
-            sleep(2)
-            ret = check_output(["bluetoothctl", "remove", self.bt_connected_device_mac], text=True)
-        
-    def start_bt(self):
-        ret = check_output(["bluetoothctl", "list"], text=True)
-        self.bt_controller_mac = ret.split(" ")[1]
-        ret = check_output(["bluetoothctl", "select", f"{self.bt_controller_mac}"], text=True)
-        ret = check_output(["bluetoothctl", "power", "on"], text=True)
-        assert "power on succeeded" in ret,\
-        "Failed to power on BT controller on the operating system."
-
-    def connect_to_device_by_name(self, bt_device_name, bt_device_mac=""):
-        logger.debug("BEGIN")
-        ret = check_output(["bluetoothctl", "--timeout", "10", "scan", "on"], text=True)
-        ret = check_output(["bluetoothctl", "devices"], text=True)
-        for found_device in ret.split("\n"):
-            if bt_device_name in found_device and bt_device_mac in found_device:
-                self.bt_connected_device_mac = found_device.split(" ")[1]
-                logger.debug(f'FOUND: {found_device}')
-                logger.debug(f'Set bt_connected_device_mac to {self.bt_connected_device_mac}, from {found_device.split(" ")}')
-                print("Found:", found_device)
-                break
-        assert self.bt_connected_device_mac != "",\
-        "Unable to connect to usb device"
-        ret = check_output(["echo", "yes", "|", "bluetoothctl", "pair", self.bt_connected_device_mac], text=True)
-        logger.debug(f"Checking output: {ret}")
-        logger.debug("END")
-
-    def connect_device_socket(self):
-        self.bt_connected_device_socket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-        self.bt_connected_device_socket.connect((self.bt_connected_device_mac, 1))
-
-    def send_data_socket(self, data):
-        self.bt_connected_device_socket.send(bytes(data+"\n", 'UTF-8'))
-        ret_data = ""
-        ret_data=self.bt_connected_device_socket.recv(1024)
-        
-        return ret_data.decode("utf-8")
-
-class Twatch(object):
-    def __init__(self, bluetooth_id = "HIKING_WATCH", bluetooth_mac=""):
-        self.bluetooth_id = bluetooth_id
-        self.bluetooth_mac = bluetooth_mac 
-
-    # Search for twatch and update mac address
-    def search_mac_address(self):
-        logger.debug("BEGIN")
-        bt = BTQuick()
-        try:
-            bt.connect_to_device_by_name(self.bluetooth_id)
-            mac = bt.get_mac_address()
-        except:
-            logger.debug("Exception occured, setting MAC to empty string")
-            mac = ""
-        bt.destroy()
-        self.bluetooth_mac = mac
-        logger.debug("END")
-        return mac
-
-    def get_bluetooth_mac(self):
-        return self.bluetooth_mac
-    
-    def get_bluetooth_id(self):
-        return self.bluetooth_id
-
-    # Connect to twatch if available and return a json array of all data
-    # If no data is available or the twatch is unreachable it will return a json list with length 0
-    def get_trip_data(self, mark_when_synced=True, return_only_new_trips=False):    
-        bt = BTQuick()
-        try:
-            bt.connect_to_device_by_name(self.bluetooth_id, self.bluetooth_mac)
-            bt.connect_device_socket()
-
-            get_trip_addresses = bt.send_data_socket("GET")
-
-            data = json.loads(bt.send_data_socket("GET /tripdata"))
-
-            return_array = "["
-
-            for trip_path in data["Paths"]:
-                return_array += bt.send_data_socket(f"GET {trip_path}")
-                return_array += ","
-
-                if mark_when_synced == True:
-                    data = bt.send_data_socket(f"POST {{}} {trip_path}/tagset")
-        
-            
-            return_array = return_array[:-1] + "]"
-
-            bt.destroy()
-        except:
-            return_array = "[]"
-
-        all_data_json = json.loads(return_array)
-
-        if return_only_new_trips == True:
-            ret = []
-            for trip in all_data_json:
-                if trip["Data"]["Tag"] == 0 and trip["Data"]["StartTimestamp"] != "0-0-0 0:0:0":
-                    ret.append(trip)
-        else:
-            ret = all_data_json
-
-        return ret
 
 
 def example_use():
@@ -144,3 +25,74 @@ def example_use():
             print("Avspeed", data_json["AvgSpeed"])
             print("Tag", data_json["Tag"])
 #example_use()
+
+
+def parse_json_data(trip):
+    logger.debug(f"BEGIN")
+
+    data_json = trip["Data"]
+    #print("found new data")
+    logger.debug(f"Found new data with id {data_json['ID']}")
+    try:
+        date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
+        date = ""
+        date += date_tmp[0]+"-"
+        if len(date_tmp[1]) == 2:
+            date += date_tmp[1]+"-"
+        else:
+            date += "0"+date_tmp[1]+"-"
+        
+        if len(date_tmp[2]) == 2:
+            date += date_tmp[2]
+        else:
+            date += "0"+date_tmp[2]
+
+        avg_speed = round(float(data_json["AvgSpeed"]), 1)
+
+        distance = round(int(data_json["Steps"]) * 0.76 / 1000, 2)
+
+        steps = int(data_json["Steps"])
+        
+        # SRS documentation for calory calculations
+        calories = round( distance * 56 / 1000, 1)
+
+        entry = TrackingDataEntry(date=date, avg_speed=avg_speed,distance=distance,steps=steps,calories=calories)
+
+        logger.debug("Entry parsed succesfully. Adding entry.")
+        repository.add_entry(entry)
+        logger.debug("END")
+        
+    except IndexError as e:
+        logger.warning(f"Index out of range, skipping data entry and continuing execution. Entry: {trip}. Error: {e}")
+        
+    except KeyError as e:
+        logger.warning(f"Key not found, skipping data entry and continuing execution. Entry: {trip}. Error: {e}")
+
+    except Exception as e:
+        logger.error(f"Unhandled exception occured. Aborting: {e}")
+        raise Exception(e)
+        
+
+    
+def bluetooth_sync_routine():
+
+    logger.debug("BEGIN")
+    try:
+        
+        #repository.setup_watch_device()
+        watch = Twatch()
+
+        logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
+
+        data_json = watch.get_trip_data(return_only_new_trips=True, mark_when_synced=True)
+
+        for trip in data_json:
+            parse_json_data(trip)
+        
+        logger.debug("END")
+    except Exception as e:
+        logger.error(f"Unhandled exception occured. Aborting. Error: {e}")
+        raise Exception(e) 
+    
+    
+

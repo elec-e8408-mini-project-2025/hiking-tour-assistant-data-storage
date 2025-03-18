@@ -2,14 +2,21 @@ from app import logger
 import uuid
 from app import app
 from flask import render_template, redirect, url_for, flash, get_flashed_messages
-from twatch_controller.twatch_controller import Twatch
-from entity.tracking_data import TrackingDataEntry
+from twatch_controller.twatch_controller import bluetooth_sync_routine
+from twatch_controller.t_watch import Twatch
+
 
 from repository.tracking_data_repository import default_tracking_data_repository as repository
 
 
 @app.route('/')
 def main():
+    """
+        Prepares and renders the main view template of the web application
+
+        The function fetches top hiking trip data from repository
+        which is then populated in the rendered view
+    """
     logger.debug("BEGIN")
 
     top_distance = repository.top_entry_for_distance()
@@ -28,6 +35,10 @@ def main():
 
 @app.route('/hikes')
 def hikes_list():
+    """
+        Prepares and renders the hikes template. The view
+        contains data from all hikes in persistent memory
+    """
     logger.debug("BEGIN")
 
     columns, rows = repository.fetch_all_tracking_data()
@@ -40,6 +51,10 @@ def hikes_list():
 
 @app.route('/hike/<int:hikeid>', methods=['POST'])
 def hikes_views(hikeid):
+    """
+        Handles deletion of a selected hike
+        The delete request is sent with a POST request
+    """
     logger.debug("BEGIN")
 
     repository.delete_hike(hikeid)
@@ -50,6 +65,9 @@ def hikes_views(hikeid):
 
 @app.route('/bluetooth-setup')
 def bluetooth_setup_page():
+    """
+        Renders the bluetooth configuration template view
+    """
     logger.debug("BEGIN")
     device_data = repository.fetch_device_data()
     if device_data != None:
@@ -77,82 +95,41 @@ def bluetooth_setup_page():
 
 @app.route('/bluetooth-setup/start')
 def bluetooth_setup_execute():
+    """Handles the pairing of a new LilyGO T-Watch"""
+    
     logger.debug("BEGIN")
 
-    #repository.setup_watch_device()
-    logger.debug("Searching for new device")
-    watch = Twatch()
-    watch.search_mac_address()
+    try:
+        #repository.setup_watch_device()
+        logger.debug("Searching for new device")
+        watch = Twatch()
+        watch.search_mac_address()
 
-    logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
+        logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
 
-    device_name = watch.get_bluetooth_id()
-    device_mac_address = watch.get_bluetooth_mac()
-    if device_name == "" or device_mac_address == "":
-        logger.debug(f'Unable to find the bluetooth device')
+        device_name = watch.get_bluetooth_id()
+        device_mac_address = watch.get_bluetooth_mac()
+        if device_name == "" or device_mac_address == "":
+            logger.debug(f'Unable to find the bluetooth device')
 
-    else:
-        logger.debug(f'Updating device entry: {device_name}')
-        repository.update_watch_data(device_mac_address, device_name)
-        
+        else:
+            logger.debug(f'Updating device entry: {device_name}')
+            repository.update_watch_data(device_mac_address, device_name)
+        flash(f'Paired a new device successfully', "success")
+            
+    except Exception as e:
+        flash(f'Pairing a new device failed: {e}', "danger")
+    
     logger.debug("END")
-
     return redirect(url_for('bluetooth_setup_page'))
-
-def bluetooth_sync_routine():
-
-    logger.debug("BEGIN")
-    #repository.setup_watch_device()
-    watch = Twatch()
-
-    logger.debug(f'Using watch {watch.bluetooth_id} with MAC: {watch.bluetooth_mac}')
-
-    data_json = watch.get_trip_data(return_only_new_trips=True, mark_when_synced=True)
-
-    for trip in data_json:
-        data_json = trip["Data"]
-        #print("found new data")
-        logger.debug(f"Found new data with id {data_json['ID']}")
-        try:
-            date_tmp = data_json["StartTimestamp"].split(" ")[0].split("-") # Format: "yyyy-m-d h:m:s" example "2033-2-5 5:4:13"
-            date = ""
-            date += date_tmp[0]+"-"
-            if len(date_tmp[1]) == 2:
-                date += date_tmp[1]+"-"
-            else:
-                date += "0"+date_tmp[1]+"-"
-            
-            if len(date_tmp[2]) == 2:
-                date += date_tmp[2]
-            else:
-                date += "0"+date_tmp[2]
-
-            avg_speed = round(float(data_json["AvgSpeed"]), 1)
-
-            distance = round(int(data_json["Steps"]) * 0.76 / 1000, 2)
-
-            steps = int(data_json["Steps"])
-            
-            # SRS documentation for calory calculations
-            calories = round( distance * 56 / 1000, 1)
-
-            entry = TrackingDataEntry(date=date, avg_speed=avg_speed,distance=distance,steps=steps,calories=calories)
-            #print(date)
-            #print(avg_speed)
-            #print(distance)
-            #print(steps)
-            #print(calories)
-        except:
-            #print("failed")
-            logger.debug("Failed to add entry for unknown reason.")
-            continue
-
-        logger.debug("Entry parsed succesfully. Adding entry.")
-        repository.add_entry(entry)
-        logger.debug("END")
 
 @app.route('/bluetooth-setup/poll')
 def bluetooth_poll_data():
+    """
+        Handles the synchronization of hiking session data from 
+        the LilyGO T-Watch to the persistent storage of the 
+        Web Application
+    """
     logger.debug("BEGIN")
 
     try:
