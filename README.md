@@ -4,7 +4,7 @@ Hiking Tour Assistant Data Storage is part of Hiking Band System, together with 
 
 ## How to get started
 
-This project has been released together with the LilyGO T-Watch hiking application. Within the final release are documentation to help get started. 
+This project has been released together with the LilyGO T-Watch hiking application. Within the final release are documentation to help get started. The final release has been provided as a compressed archive as a course submission. 
 
 
 ## Requirements
