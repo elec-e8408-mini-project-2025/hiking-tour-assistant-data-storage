@@ -1,14 +1,21 @@
 # Hiking Tour Assistant Data Storage
 
-Initial commit
+Hiking Tour Assistant Data Storage is part of Hiking Band System, together with the LilyGO T-Watch Hiking application. This project provides a web application that is built to run on Raspberry Pi 3B. 
+
+## How to get started
+
+This project has been released together with the LilyGO T-Watch hiking application. Within the final release are documentation to help get started. 
+
 
 ## Requirements
 
-What is required to install and run this application
+The Web Application is a Python 3.x application that works on versions 3.10 and greater. The dependencies for the application can be found in [requirements.txt](./requirements.txt), 
 
 ## Installation
 
-### Manual installation
+Installation can be done either by manual installation or by using the convenience script. 
+
+### Option 1: Manual installation
 
 First setup the virtual environment
 
@@ -27,7 +34,7 @@ If you add new dependencies, create an updated `requirements.txt` with the follo
 pip freeze > requirements.txt
 ```
 
-### Convenience script
+### Option 2: Convenience script
 
 Run the installation script with
 
@@ -37,7 +44,9 @@ Run the installation script with
 
 ## Running the application
 
-### Manually
+The applicatin can also be run either manually or with a convenience script. 
+
+### Option 1: Manually
 
 To run the app use 
 
@@ -52,7 +61,7 @@ flask --app src/app.py --debug run
 ```
 
 
-### Convenience script
+### Option 2: Convenience script
 
 To run the app use 
 
@@ -65,6 +74,3 @@ To debug:
 ```bash
 ./start-app.sh debug
 ```
-
-
-TODO: Quick guide for users to get started
